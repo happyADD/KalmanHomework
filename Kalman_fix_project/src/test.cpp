@@ -35,12 +35,13 @@ public:
         fillted_publisher_ = this->create_publisher<geometry_msgs::msg::Vector3>("fillted", 1);
 
         //用于kalman运行的定时器，和云台输出频率一致
-        kalman_timer_ = create_wall_timer(std::chrono::microseconds(100000),
+        kalman_timer_ = create_wall_timer(std::chrono::microseconds(1000000),
                                           [this] { timer_cb(); }, callback_group_);
         //用于生成原始数据的定时器
-        simulator_timer_ = create_wall_timer(std::chrono::microseconds(10000),
+        simulator_timer_ = create_wall_timer(std::chrono::microseconds(100000),
                                              [this] { simulator_cb(); }, callback_group_);
-
+        //哭四，电脑太垃圾只能10Hz跑
+        //跳动是电脑性能问题，不是模型
         RCLCPP_INFO(this->get_logger(), "节点%s已启动", name.c_str());
     }
 
