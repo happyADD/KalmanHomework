@@ -23,7 +23,7 @@ public:
     Simulator_CV(std::string name) : Node(name) {
         Kalman_fillter_CV = new Kalman(0.01);
         Kalman_fillter_CV->Q_set(100);
-        Kalman_fillter_CV->R_set(0.001);
+        Kalman_fillter_CV->R_set(0.00005);
 
 
         //同一个组别，类型设置为Reentrant
