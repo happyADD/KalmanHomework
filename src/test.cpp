@@ -69,7 +69,7 @@ private:
         if (!isunsuccessful) {
             Eigen::Matrix<double, 1, 1> meassure;
             meassure << simulate_pos_x;
-            Kalman_fillter_CV->predict(std::atomic<bool>());
+            Kalman_fillter_CV->predict(isunsuccessful);
             Eigen::Vector3d CA_fillter_output = Kalman_fillter_CV->update(meassure);
             geometry_msgs::msg::Vector3 fillted;
             fillted.x = CA_fillter_output(0);
@@ -78,7 +78,7 @@ private:
             fillted_publisher_->publish(fillted);
             isunsuccessful = true;
         } else {
-            auto output = Kalman_fillter_CV->predict((bool) isunsuccessful);
+            auto output = Kalman_fillter_CV->predict(isunsuccessful);
             geometry_msgs::msg::Vector3 fillted;
             fillted.x = output(0);
             fillted.y = output(1);
