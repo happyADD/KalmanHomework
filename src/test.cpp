@@ -34,10 +34,10 @@ public:
         fillted_publisher_ = this->create_publisher<geometry_msgs::msg::Vector3>("fillted", 1);
 
         //用于kalman运行的定时器，和云台输出频率一致
-        kalman_timer_ = create_wall_timer(std::chrono::microseconds(10000),
+        kalman_timer_ = create_wall_timer(std::chrono::microseconds(500000),
                                           [this] { timer_cb(); }, callback_group_);
         //用于生成原始数据的定时器
-        simulator_timer_ = create_wall_timer(std::chrono::microseconds(100000),
+        simulator_timer_ = create_wall_timer(std::chrono::microseconds(5000000),
                                              [this] { simulator_cb(); }, callback_group_);
         //哭四，电脑太垃圾只能10Hz跑
         //跳动是电脑性能问题，不是模型
@@ -67,6 +67,7 @@ private:
         static int cnt = 0;
 
         if (!isunsuccessful) {
+            RCLCPP_INFO(this->get_logger(),"测量");
             Eigen::Matrix<double, 1, 1> meassure;
             meassure << simulate_pos_x;
             Kalman_fillter_CV->predict(isunsuccessful);
@@ -78,6 +79,7 @@ private:
             fillted_publisher_->publish(fillted);
             isunsuccessful = true;
         } else {
+            RCLCPP_INFO(this->get_logger(),"未测量");
             auto output = Kalman_fillter_CV->predict(isunsuccessful);
             geometry_msgs::msg::Vector3 fillted;
             fillted.x = output(0);
