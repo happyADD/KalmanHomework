@@ -10,6 +10,8 @@
 //定义时，为分频模式
 #define Frequency
 
+int cnt=0;
+
 //生成高斯噪音
 double generateGaussianNoise(double mean, double std_dev) {
     std::random_device rd;
@@ -34,10 +36,10 @@ public:
         fillted_publisher_ = this->create_publisher<geometry_msgs::msg::Vector3>("fillted", 1);
 
         //用于kalman运行的定时器，和云台输出频率一致
-        kalman_timer_ = create_wall_timer(std::chrono::microseconds(500000),
+        kalman_timer_ = create_wall_timer(std::chrono::microseconds(50000),
                                           [this] { timer_cb(); }, callback_group_);
         //用于生成原始数据的定时器
-        simulator_timer_ = create_wall_timer(std::chrono::microseconds(5000000),
+        simulator_timer_ = create_wall_timer(std::chrono::microseconds(500000),
                                              [this] { simulator_cb(); }, callback_group_);
         //哭四，电脑太垃圾只能10Hz跑
         //跳动是电脑性能问题，不是模型
@@ -63,11 +65,11 @@ private:
     std::atomic<bool> isunsuccessful = true;
 
     void timer_cb() {
-        RCLCPP_INFO(this->get_logger(), "kalman");
+        // RCLCPP_INFO(this->get_logger(), "kalman");
         static int cnt = 0;
 
         if (!isunsuccessful) {
-            RCLCPP_INFO(this->get_logger(),"测量");
+            RCLCPP_INFO(this->get_logger(),"kalman测量,%d",cnt);
             Eigen::Matrix<double, 1, 1> meassure;
             meassure << simulate_pos_x;
             Kalman_fillter_CV->predict(isunsuccessful);
@@ -79,7 +81,7 @@ private:
             fillted_publisher_->publish(fillted);
             isunsuccessful = true;
         } else {
-            RCLCPP_INFO(this->get_logger(),"未测量");
+            RCLCPP_INFO(this->get_logger(),"kalman未测量,%d",cnt);
             auto output = Kalman_fillter_CV->predict(isunsuccessful);
             geometry_msgs::msg::Vector3 fillted;
             fillted.x = output(0);
@@ -88,7 +90,7 @@ private:
             fillted_publisher_->publish(fillted);
         }
 
-
+++cnt %= 10;
     }
 
 
